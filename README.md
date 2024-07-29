@@ -22,10 +22,6 @@ series for that literal in the clause.  Then by combining these multiple equatio
 using mathematical logic (DeMorgan's Law, product for AND, and 1-X for NOT) it will create
 a formula that should approximate the logic of a CNF for k variables. 
 
-## Known Issues 
-
-Symbolic methods may still yield a exponential time complexity (expand and integrate).
-
 ## Usage
 
 To display the options: 
