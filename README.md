@@ -45,9 +45,23 @@ options:
 
 ## Examples
 ```
-$ ./cnf2fourier.py -i cnf/input.cnf -o form.txt -n 2
+$ time ./cnf2fourier.py -i cnf/input.cnf -n 2 -o form.txt -s
 Creating forumula...
 Processing integral...
-Number of solutions between 0 8: 5.08627787690147
+searching for solutions between 0 8
+Number of solutions between 0 4.0: 2.0657218570972735
+Number of solutions between 4.0 8: 3.020556019804195
+Number of solutions between 4.0 6.0: 1.680723364523141
+Number of solutions between 6.0 8: 1.3398326552810542
+Number of solutions between 4.0 5.0: 0.7700906942468111
+Number of solutions between 5.0 6.0: 0.9106326702763299
+Solution found. Variable assignments: 
+1: 1
+2: 0
+3: 1
+
+real	0m19.666s
+user	0m19.629s
+sys	0m0.036s
 ```
 
