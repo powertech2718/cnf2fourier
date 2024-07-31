@@ -2,6 +2,7 @@
 
 import argparse
 import sympy
+import math
 
 class Literal:
     def __init__(self, variable_name, is_negated):
@@ -69,6 +70,9 @@ class Cnf:
             return self._variable_name_to_index[name]
         else:
             raise Exception("variable name lookup failed")
+            
+    def variable_name_to_index(self):
+        return self._variable_name_to_index;
         
     def num_clauses(self):
         return len(self._clauses)
@@ -204,9 +208,23 @@ parser = argparse.ArgumentParser(
                     description='Creates a mathematical formula from a cnf dimacs file',
                     epilog='-----')
 
-parser.add_argument('-n', '--max_n', required=True, help="Fourier series summation -1*max_n to max_n value") 
-parser.add_argument('-i', '--input', required=True, help="<filename (input)>: DIMACS filename")
-parser.add_argument('-o', '--output', required=True, help="<filename (output)>: ")
+parser.add_argument(
+    '-n', '--max_n', required=True, 
+    help="Fourier series summation -1*max_n to max_n value"
+    ) 
+parser.add_argument(
+    '-i', '--input', required=True, 
+    help="<filename (input)>: DIMACS filename"
+    )
+parser.add_argument(
+    '-o', '--output', required=True, 
+    help="<filename (output)>: "
+    )
+parser.add_argument(
+    '-s', '--solve', action='store_true', 
+    required=False, 
+    help="Try to solve using the symbolic intergration method and searching for a solution"
+    )
 
 
 args = parser.parse_args()
@@ -238,15 +256,53 @@ print("Creating forumula...")
 fm = Fourier_Series_Formula(cnf, int(args.max_n), False)
 with open (args.output, "w") as output_file:    
     output_file.write(str(fm.formula()) + "\n")
+    output_file.close()
+
+
+if (args.solve):
+    print("Processing integral...")
+    x = sympy.symbols('x')
+    F = sympy.integrate(fm.formula(), x) 
+    (a,b) = (0, 2 ** cnf.num_variables())
+    print("searching for solutions between {0} {1}".format(a,b))
     
+    def num_solutions(a, b):
+        solutions =  float(sympy.re(sympy.N(F.subs(x, b) - F.subs(x, a))))
+        print("Number of solutions between {0} {1}: {2}" .format(a, b, solutions))
+        return solutions
+    
+    solution_found = False
+    while True:
+        a_0 = a
+        b_0 = a + (b-a)/2
+        a_1 = b_0
+        b_1 = b
+        solution_count_0 = num_solutions(a_0, b_0)
+        solution_count_1 = num_solutions(a_1, b_1) 
+        
+        if solution_count_1 > solution_count_0:
+            a = a_1
+            b = b_1
+            solution_found = (solution_count_1 > .8)
+        else:
+            a = a_0
+            b = b_0
+            solution_found = (solution_count_1 > .8)
+        if (b-a <= 1):
+            break
+        
 
 
-
-print("Processing integral...")
-x = sympy.symbols('x')
-F = sympy.integrate(fm.formula(), x) 
-solutions = sympy.N(F.subs(x, 2 ** cnf.num_variables()) - F.subs(x, 0))
-print("Number of solutions between {0} {1}: {2}" .format(0, 2 ** cnf.num_variables(), solutions))
+    if solution_found:
+        print("Solution found. Variable assignments: ") 
+        a = int(math.floor(a))    
+        for var in cnf.variable_name_to_index().keys():
+            index = cnf.lookup_index(var)
+            value = 1 if a & (1<<index) != 0 else 0
+            print ("{0}: {1}".format(var, value))
+    else:
+        print ("No solution found")
+        
 
 
 
