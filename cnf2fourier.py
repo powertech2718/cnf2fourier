@@ -34,18 +34,14 @@ class Clause:
     def num_literals(self):
         return len(self._literals)
     
-    # variables is a list of bool
-    def evaluate_by_index(self, variables):
-        result = False
-        for lit in self._literals:
-            result |= lit.evaluate(variables[lit.variable_index()])
-        return result
-        
+
     def evaluate_by_name(self, variables):
         result = False
         for lit in self._literals:
-            if lit.variable_name() in variables:
-                result |= lit.evaluate(variables[lit.variable_name()])
+            if lit.variable_name() in variables.keys():
+                result = result or lit.evaluate(variables[lit.variable_name()])
+            else:
+                raise Exception("variable name not found")
         return result
     
     
@@ -82,6 +78,12 @@ class Cnf:
     
     def num_variables(self):
         return len(self._variable_name_to_index)
+    
+    def evaluate(self, variable_assigments):
+        clause_truth = True
+        for clause in self._clauses:            
+            clause_truth = clause_truth and clause.evaluate_by_name(variable_assigments)
+        return clause_truth
     
 class Interval_Value_1:
     def __init__ (self, period, offset, count) :
@@ -272,6 +274,7 @@ if (args.solve):
         return solutions
     
     solution_found = False
+    thresold = .8
     while True:
         a_0 = a
         b_0 = a + (b-a)/2
@@ -283,23 +286,32 @@ if (args.solve):
         if solution_count_1 > solution_count_0:
             a = a_1
             b = b_1
-            solution_found = (solution_count_1 > .8)
+            solution_found = (solution_count_1 > thresold)
         else:
             a = a_0
             b = b_0
-            solution_found = (solution_count_1 > .8)
+            solution_found = (solution_count_0 > thresold)
         if (b-a <= 1):
             break
         
 
 
     if solution_found:
-        print("Solution found. Variable assignments: ") 
+        print("Solution found:")
+        variable_assignments = dict()
         a = int(math.floor(a))    
         for var in cnf.variable_name_to_index().keys():
             index = cnf.lookup_index(var)
             value = 1 if a & (1<<index) != 0 else 0
+            variable_assignments[var] = value
             print ("{0}: {1}".format(var, value))
+        
+        if cnf.evaluate(variable_assignments):
+            print("Verification succeeded")
+        else:
+            print("Verification failed")
+    
+        
     else:
         print ("No solution found")
         
