@@ -254,7 +254,7 @@ with open(args.input) as input_file:
             cnf.push_back(curr_clause)
         
 
-print("Creating forumula...")
+print("Creating formula...")
 fm = Fourier_Series_Formula(cnf, int(args.max_n), False)
 with open (args.output, "w") as output_file:    
     output_file.write(str(fm.formula()) + "\n")
@@ -265,11 +265,12 @@ if (args.solve):
     print("Processing integral...")
     x = sympy.symbols('x')
     F = sympy.integrate(fm.formula(), x) 
+    F_fast = sympy.lambdify(x, F, 'numpy')
     (a,b) = (0, 2 ** cnf.num_variables())
     print("searching for solutions between {0} {1}".format(a,b))
     
     def num_solutions(a, b):
-        solutions =  float(sympy.re(sympy.N(F.subs(x, b) - F.subs(x, a))))
+        solutions =  float(sympy.re(F_fast(b) - F_fast(a)))
         print("Number of solutions between {0} {1}: {2}" .format(a, b, solutions))
         return solutions
     
