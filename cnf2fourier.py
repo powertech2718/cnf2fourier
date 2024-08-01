@@ -260,17 +260,20 @@ with open (args.output, "w") as output_file:
     output_file.write(str(fm.formula()) + "\n")
     output_file.close()
 
+from mpmath import *
 
 if (args.solve):
     print("Processing integral...")
     x = sympy.symbols('x')
-    F = sympy.integrate(fm.formula(), x) 
-    F_fast = sympy.lambdify(x, F, 'numpy')
+    f_fast = sympy.lambdify(x, fm.formula(), 'mpmath')
+    #F = sympy.integrate(fm.formula(), x) 
+    #F_fast = sympy.lambdify(x, F, 'numpy')
     (a,b) = (0, 2 ** cnf.num_variables())
     print("searching for solutions between {0} {1}".format(a,b))
     
     def num_solutions(a, b):
-        solutions =  float(sympy.re(F_fast(b) - F_fast(a)))
+        #solutions =  float(sympy.re(F_fast(b) - F_fast(a)))
+        solutions = re(quad(f_fast, [a,b]))
         print("Number of solutions between {0} {1}: {2}" .format(a, b, solutions))
         return solutions
     
