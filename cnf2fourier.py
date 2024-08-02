@@ -260,10 +260,10 @@ with open (args.output, "w") as output_file:
     output_file.write(str(fm.formula()) + "\n")
     output_file.close()
 
-from mpmath import *
+import mpmath 
 
 if (args.solve):
-    print("Processing integral...")
+    print("Processing integral (using quad as an example, which won't find all the answers) ...")
     x = sympy.symbols('x')
     f_fast = sympy.lambdify(x, fm.formula(), 'mpmath')
     #F = sympy.integrate(fm.formula(), x) 
@@ -273,7 +273,7 @@ if (args.solve):
     
     def num_solutions(a, b):
         #solutions =  float(sympy.re(F_fast(b) - F_fast(a)))
-        solutions = re(quad(f_fast, [a,b]))
+        solutions = mpmath.re(mpmath.quad(f_fast, [a,b]))
         print("Number of solutions between {0} {1}: {2}" .format(a, b, solutions))
         return solutions
     
