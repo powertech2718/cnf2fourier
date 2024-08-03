@@ -260,20 +260,25 @@ with open (args.output, "w") as output_file:
     output_file.write(str(fm.formula()) + "\n")
     output_file.close()
 
-import mpmath 
+#import mpmath 
+#import sympy.integrals.manualintegrate
+
+import scipy
 
 if (args.solve):
     print("Processing integral (using quad as an example, which won't find all the answers) ...")
     x = sympy.symbols('x')
-    f_fast = sympy.lambdify(x, fm.formula(), 'mpmath')
-    #F = sympy.integrate(fm.formula(), x) 
+    
+    f_fast = sympy.lambdify(x, fm.formula(), 'scipy')
+    #F = sympy.integrals.manualintegrate.integral_steps(fm.formula(), x) 
+    #print(F)
     #F_fast = sympy.lambdify(x, F, 'numpy')
     (a,b) = (0, 2 ** cnf.num_variables())
     print("searching for solutions between {0} {1}".format(a,b))
     
     def num_solutions(a, b):
         #solutions =  float(sympy.re(F_fast(b) - F_fast(a)))
-        solutions = mpmath.re(mpmath.quad(f_fast, [a,b]))
+        (solutions,_) = scipy.integrate.quad(f_fast, a,b)
         print("Number of solutions between {0} {1}: {2}" .format(a, b, solutions))
         return solutions
     
