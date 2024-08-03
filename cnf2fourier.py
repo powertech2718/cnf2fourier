@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import sympy
@@ -270,7 +270,7 @@ if (args.solve):
     x = sympy.symbols('x')
     
     f_fast = sympy.lambdify(x, fm.formula(), 'scipy')
-    #F = sympy.integrals.manualintegrate.integral_steps(fm.formula(), x) 
+    #F = sympy.integrals.integrate(fm.formula(), x) 
     #print(F)
     #F_fast = sympy.lambdify(x, F, 'numpy')
     (a,b) = (0, 2 ** cnf.num_variables())
